@@ -53,9 +53,9 @@ iOSエンジニア
 
 役割: 自社プロダクトのモバイル版開発
 取り組み: 自社プロダクトのモバイル版へのAI要約機能を実装。インターン生同士が主体となって要件に基づいた必要な機能の洗い出しやUIUXの検討、開発中の進め方について相談しながらタスクに着手。
-WebViewの実装やSwift Concurrencyの検討、Human Interface Guidlineの内容も学習。
+WebViewの実装やSwift Concurrencyの検討、Human Interface Guidelineの内容も学習。
 
-kubell/学生インターン
+株式会社kubell/学生インターン
 Webエンジニア（上流工程を含む）
 2026年9月（2週間）
 
