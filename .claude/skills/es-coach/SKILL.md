@@ -7,13 +7,18 @@ description: >-
   文字数調整（○字以内に収める・削る・増やす）、ES添削、履歴書、エントリーシート、「企業名＋設問＋文字数」だけの
   指示（例:「MIXI 挑戦したいこと 500字」）が出たら、スキル名を言われなくても必ずこのスキルを使う。
   「この回答どう思う？」「もっと良くして」のような曖昧な添削依頼、企業の採用ページを調べて志望動機を書く依頼、
-  entry_sheet.md への追記依頼もこのスキルの対象。
+  entry_sheet.md への追記依頼もこのスキルの対象。書類選考を通過しやすい内容を狙い、骨子と完成稿はそれぞれ
+  自動レビューで合格するまで直す（各段階で最大5回）。
 ---
 
 # ES Coach
 
 新卒本選考の ES 回答を「素材から作る」「既存回答を添削する」ためのスキル。
 プロジェクトルートは `entry_sheet.md` があるディレクトリ（通常は cwd）。以下のパスはそこからの相対パス。
+
+目標は「正しい文章」ではなく **書類選考を通過する ES**。採用担当が短時間で「会ってみたい」と判断できるように、評価してほしい一点を決め、企業の求める人物像に結びつけ、この人にしか書けない具体で差別化する（`references/rubric.md`「選考通過の観点」S1〜S6）。
+そのために、**骨子（プラン）と完成稿（出力）は、ユーザーに見せる前に別のレビュアーが審査し、合格するまで直す（各段階で最大5回）**。手順は `references/review.md`。
+また、**レビューやユーザーの指示で骨子・回答を直した内容は `history/` にナレッジとして蓄積し、作成時とレビュー時に必ず参照する**。手順は `references/knowledge.md`。
 
 ## 前提として知っておくこと
 
@@ -26,9 +31,10 @@ description: >-
 
 毎回:
 1. `references/material-index.md`（素材の地図・正典数値・時系列表）
-2. `python3 .claude/skills/es-coach/scripts/es_index.py` を実行し、既存回答の全体像（企業・設問・字数・比率）を把握する。`entry_sheet.md` は 78KB あるので全文 Read はしない。必要な箇所は `--company` `--question` で取り出す。
+2. `python3 .claude/skills/es-coach/scripts/knowledge.py brief --company 企業名` を実行し、蓄積した教訓（`history/lessons.md`）と過去の修正履歴を今回の作業ルールに加える。
+3. `python3 .claude/skills/es-coach/scripts/es_index.py` を実行し、既存回答の全体像（企業・設問・字数・比率）を把握する。`entry_sheet.md` は 78KB あるので全文 Read はしない。必要な箇所は `--company` `--question` で取り出す。
 
-設問タイプが決まったら `references/question-types.md` の該当節。執筆後と添削時は `references/rubric.md`。志望動機・挑戦したいこと・ビジョン・逆質問は `references/company-research.md`。文体で迷ったら `references/style-guide.md`。
+設問タイプが決まったら `references/question-types.md` の該当節。執筆後と添削時は `references/rubric.md`。骨子と完成稿のレビュー時は `references/review.md`。志望動機・挑戦したいこと・ビジョン・逆質問は `references/company-research.md`。文体で迷ったら `references/style-guide.md`。
 
 ## モード判定
 
@@ -58,10 +64,18 @@ python3 .claude/skills/es-coach/scripts/es_index.py --episodes --company MIXI   
 数値は正典表からのみ。使い回し感を避けたいときは、企業別回答で未使用の「タスク約1か月短縮」や夏インターン3社（チームラボ・サイボウズ・kubell）を検討する。
 
 ### 4. 企業リサーチ（志望動機・挑戦したいこと・ビジョン・きっかけ・逆質問のみ）
-`references/company-research.md` の手順で WebSearch 2〜4回、WebFetch 2〜3ページ。固有名詞ごとに「事実・出典 URL・結べる素材」をメモし、最終報告に載せる。自己PR・ガクチカ・研究には不要。
+`references/company-research.md` の手順で WebSearch 2〜4回、WebFetch 2〜3ページ。固有名詞ごとに「事実・出典 URL・結べる素材」と、**求める人物像・バリュー・職種要件**を `$W/research.md` にメモし、最終報告に載せる（`$W` は `review.md` の作業ディレクトリ）。自己PR・ガクチカ・研究では必須ではないが、同じ企業で既にリサーチ済みならメモを使い回して S2（求める人物像との一致）に活かす。
 
-### 5. 骨子を作る
-書き始める前に「結論1文＋段落ごとの役割と目安字数」を作る。字数配分を先に決めると、後の削り作業がほぼ無くなる。配分の目安は `question-types.md` の各節。
+### 5. 骨子を作る → 自動レビュー（段階 P）
+書き始める前に、次を `$W/plan.md` に書く。字数配分を先に決めると、後の削り作業がほぼ無くなる。配分の目安は `question-types.md` の各節。
+- 設問原文と、そこに含まれる問いの分解
+- 結論1文
+- 評価してほしい一点（採用担当に残したい印象。例:「チームの開発速度を仕組みで上げられる人」）
+- 対応させる求める人物像・バリュー・職種要件（根拠はリサーチメモ）
+- 使うエピソード・数値と、差別化ポイント（この人にしか書けない判断・工夫）
+- 段落ごとの役割と目安字数
+
+**自動レビュー（段階 P）**: `references/review.md` に従い、plan.md をレビュー → FAIL なら直して再レビュー。合格するまで、**最大5回**。記録は `$W/reviews/plan_r{N}.md`。「要修正」を直したら1件ずつ `knowledge.py add --stage plan --source review --round N ...` で記録する。5回で合格しなければ、残りの指摘を添えて骨子をユーザーに示し、判断を仰ぐ。
 
 ### 6. 書く
 `style-guide.md` に従う。です・ます調、結論ファースト、一文80字目安、1段落1役割、「インターンでは」を使わない、社名は直書き。
@@ -71,7 +85,10 @@ python3 .claude/skills/es-coach/scripts/es_index.py --episodes --company MIXI   
 python3 .claude/skills/es-coach/scripts/count_chars.py --file 下書き.txt --limit 500 --mode within
 ```
 OVER なら `style-guide.md` の「削る優先順位」で削る。SHORT なら「増やす順序」で行動の具体を足す（感想は足さない）。
-次に `rubric.md` の自動不合格4条件と8項目を自己採点し、1点以下の項目を直す。13/16 未満なら骨子に戻る。
+次に `rubric.md` の自動不合格4条件と8項目、選考通過の観点 S1〜S6 を自己採点し、1点以下の項目と ✕ を直す。13/16 未満なら骨子に戻る。
+
+### 7.5 自動レビュー（段階 O）
+本文を `$W/draft.txt` に保存し、`references/review.md` に従ってレビュー → FAIL なら直し、`count_chars.py` を再度 OK にしてから再レビュー。合格するまで、**最大5回**。記録は `$W/reviews/output_r{N}.md`。「要修正」を直したら1件ずつ `knowledge.py add --stage output --source review --round N ...` で記録する。骨子から崩れていると判定されたら手順5に戻る（`review.md` の規則7）。5回で合格しなければ、それ以上直さずに残りの指摘を報告の「確認事項」に載せる。
 
 ### 8. 追記して報告する
 下書きはスクラッチパッドか一時ファイルに保存し、まず dry-run:
@@ -80,6 +97,8 @@ python3 .claude/skills/es-coach/scripts/append_entry.py --company MIXI --questio
 ```
 挿入位置と見出しレベルを確認してから `--dry-run` を外して実行する。既存の企業セクションがあればその末尾に同じレベル体系で入り、無ければ末尾に `## 企業名` → `### 設問` で新設される。同名設問は上書きせず版が付く（過去版を残すのがこのリポジトリの慣習）。
 
+報告の前に `knowledge.py promote` を実行し、候補があれば `references/knowledge.md` に従って `history/lessons.md` に昇格する。
+
 報告は次の形:
 ```
 ## 回答（企業 / 設問 / N字以内）
@@ -87,10 +106,13 @@ python3 .claude/skills/es-coach/scripts/append_entry.py --company MIXI --questio
 
 文字数: 改行込み xxx / 改行除く yyy（上限 N の zz%）
 スコア: 14/16（1点以下の項目: なし）
+選考通過の観点: S1〜S6 すべて ○（評価してほしい一点: 〜）
+自動レビュー: 段階 P 第1回 PASS / 段階 O 第2回 PASS（直さなかった提案: 〜）
 使用エピソード: …（この企業の他設問と重複なし）
 企業固有名詞と出典: 〜（URL）／〜（URL）
 確認事項: 推測した点、追加できる数値の有無、表記の選択
 追記先: entry_sheet.md 「## 企業名」セクション末尾（L xxx）
+ナレッジ: 記録 n 件（plan x / output y）、lessons.md への追加: 〜（なければ「なし」）
 ```
 改行込み・改行除くを併記するのは、企業フォームの数え方が分からないときにユーザーが判断できるようにするため。
 
@@ -98,12 +120,18 @@ python3 .claude/skills/es-coach/scripts/append_entry.py --company MIXI --questio
 
 1. 対象文を取り出す（entry_sheet.md 内なら `es_index.py --question` か `--company`）。
 2. `count_chars.py --limit N` で計測。超過なら最初に指摘する（自動不合格）。
-3. `rubric.md` の自動不合格4条件 → 8項目を採点。各項目に原文の引用を根拠として添える。
-4. 修正提案を優先度順に before/after で示す。理由を1行ずつ。
-5. 修正版全文を書き、再計測する。
-6. `rubric.md` 末尾の出力形式（総評 → 文字数 → 基準別評価 → 修正提案 → 修正版全文 → 修正後文字数 → 確認事項）で返す。
+3. `rubric.md` の自動不合格4条件 → 8項目 → 選考通過の観点 S1〜S6 を採点。各項目に原文の引用を根拠として添える。
+4. 修正方針を `$W/plan.md` にまとめる（評価してほしい一点、対応させる求める人物像、優先度順の修正提案 before/after と理由1行ずつ）。これを **段階 P のレビュー**にかけ、合格するまで最大5回直す。
+5. 修正版全文を `$W/draft.txt` に書き、再計測する。これを **段階 O のレビュー**にかけ、合格するまで最大5回直す。
+6. `rubric.md` 末尾の出力形式（総評 → 文字数 → 基準別評価 → 修正提案 → 修正版全文 → 修正後文字数 → 確認事項）で返す。総評に自動レビューの結果（各段階で何回目に合格したか、合格しなかった場合は残った指摘）を書く。
+
+段階 P・O の「要修正」を直したら、ワークフロー A と同じく `knowledge.py add` で1件ずつ記録し、報告前に `promote` を確認する。
 
 修正版では元の主張と事実を変えない。足したくなった事実は本文に入れず「確認事項」に出す。ユーザーが entry_sheet.md への反映を求めたら、ワークフロー A の手順8で版付き追記する。
+
+## 報告後の修正指示
+
+報告後や骨子の提示後に、ユーザーから修正の指示（「もっと〜して」「このエピソードは使わないで」など）が来たら、直したうえで `knowledge.py add --stage plan|output --source prompt ...` で記録する。今後も続く好み・方針なら lessons.md にも昇格する。修正が大きい場合（結論・エピソード・段落構成の変更）は、該当段階のレビューを1回目からやり直す。
 
 ## 文字数のルール
 
@@ -124,9 +152,13 @@ python3 .claude/skills/es-coach/scripts/append_entry.py --company MIXI --questio
 |---|---|
 | `references/material-index.md` | 毎回最初。素材の所在、正典数値、時系列、表記慣習 |
 | `references/question-types.md` | 設問タイプが決まったら該当節 |
-| `references/rubric.md` | 執筆後のセルフチェック、添削時 |
+| `references/rubric.md` | 執筆後のセルフチェック、添削時（8項目＋選考通過の観点） |
+| `references/review.md` | 骨子（段階 P）と完成稿（段階 O）の自動レビュー。各段階最大5回 |
 | `references/style-guide.md` | 執筆時、文字数調整時、流用時の変換 |
 | `references/company-research.md` | 志望動機・挑戦・ビジョン・きっかけ・逆質問 |
+| `references/knowledge.md` | 修正履歴（ナレッジ）の記録・参照・昇格の手順 |
+| `history/lessons.md` / `history/history.jsonl` | 蓄積した教訓と修正履歴（`knowledge.py` で読み書き） |
+| `scripts/knowledge.py` | ナレッジの add / list / brief / promote |
 | `scripts/count_chars.py` | 文字数と上限判定 |
 | `scripts/es_index.py` | entry_sheet.md の索引・抽出・エピソード重複確認 |
 | `scripts/append_entry.py` | entry_sheet.md への追記（dry-run → 実行） |
