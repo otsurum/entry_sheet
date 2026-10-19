@@ -10,7 +10,7 @@ usage:
       --problem "何が問題だったか" --fix "どう直したか" --lesson "次回から守る一般化したルール" \\
       [--company MIXI] [--question "挑戦したいこと"] [--round 2]
   knowledge.py list [--category appeal] [--stage output] [--company MIXI] [--last 30]
-  knowledge.py brief [--last 20] [--company MIXI]   # 作成・レビュー前に読む要約
+  knowledge.py brief [--company MIXI] [--last 5]    # 作成前に読む要約（教訓＋その企業の履歴）
   knowledge.py promote                              # lessons.md への昇格候補を表示
 
 source: review（自動レビューの「要修正」を直した） / prompt（ユーザーの指示・コメントで直した）
@@ -21,6 +21,7 @@ category: answer（設問への回答・結論） / structure（構成・字数�
 """
 import argparse
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -85,10 +86,27 @@ def cmd_list(a):
     print("\n".join(fmt(e) for e in xs) if xs else "（まだ履歴はありません）")
 
 
+def lessons_body():
+    """lessons.md からコメントと空のカテゴリ見出しを除いた本文（読む量を減らすため）。"""
+    if not LESSONS.exists():
+        return "（なし）"
+    t = re.sub(r"<!--.*?-->", "", LESSONS.read_text(encoding="utf-8"), flags=re.S)
+    out, head = [], None
+    for line in t.splitlines():
+        if line.startswith("#"):
+            head = line
+        elif line.strip():
+            if head:
+                out.append(head)
+                head = None
+            out.append(line)
+    return "\n".join(out) or "（なし）"
+
+
 def cmd_brief(a):
     print("# ナレッジ要約（骨子・本文を書く前と、レビュー時に必ず確認）\n")
     print("## 蓄積した教訓（lessons.md）\n")
-    print(LESSONS.read_text(encoding="utf-8").strip() if LESSONS.exists() else "（なし）")
+    print(lessons_body())
     xs = load()
     if not xs:
         print("\n## 直近の修正履歴\n\n（まだ履歴はありません）")
@@ -100,8 +118,9 @@ def cmd_brief(a):
         cx = [e for e in xs if e.get("company") == a.company]
         print(f"\n## {a.company} での修正履歴（{len(cx)} 件）\n")
         print("\n".join(fmt(e) for e in cx) if cx else "（なし）")
-    print(f"\n## 直近の修正履歴（{min(a.last, len(xs))} 件）\n")
-    print("\n".join(fmt(e) for e in xs[-a.last:]))
+    if a.last:
+        print(f"\n## 直近の修正履歴（{min(a.last, len(xs))} 件）\n")
+        print("\n".join(fmt(e) for e in xs[-a.last:]))
 
 
 def cmd_promote(a):
@@ -149,7 +168,7 @@ def main():
     p.add_argument("--last", type=int, default=30)
     p.set_defaults(func=cmd_list)
     p = sub.add_parser("brief")
-    p.add_argument("--last", type=int, default=20)
+    p.add_argument("--last", type=int, default=0, help="全企業の直近履歴も表示する件数（既定 0。教訓は lessons.md に集約済み）")
     p.add_argument("--company")
     p.set_defaults(func=cmd_brief)
     p = sub.add_parser("promote")
