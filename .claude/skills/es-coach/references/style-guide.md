@@ -72,6 +72,6 @@
 ## 表記
 
 - 技術名: TCA（初出は「TCA（The Composable Architecture）」）、SPM、SwiftUI、Swift Testing、Swift Concurrency、GitHub Actions、React、FastAPI（「Fast API」と分けない）、Figma。
-- 数字: 半角。範囲は「60〜70%」（全角チルダ）。「1か月」（過去回答の「一月」「1ヶ月」は揃える）。
+- 数字: 半角。範囲は「3〜4名」（全角チルダ）。「1か月」（過去回答の「一月」「1ヶ月」は揃える）。
 - 記号: 「」で引用・強調、『』は使わない。感嘆符は使わない。
 - 絵文字・特殊記号は使わない（フォームの文字数カウントで2文字扱いになることがある）。
